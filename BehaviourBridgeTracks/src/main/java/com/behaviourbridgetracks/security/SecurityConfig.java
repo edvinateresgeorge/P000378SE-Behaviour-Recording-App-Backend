@@ -47,15 +47,14 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfig() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of(
-                "*",                          // allows all origins
-                "http://localhost:3000",      // React dev server
-                "http://localhost:4200",      // Angular dev server
-                "http://localhost:8081"       // Vue dev server
-        ));
+
+        // Allow all origins so any machine can connect
+        config.setAllowedOriginPatterns(List.of("*"));
         config.setAllowedMethods(
-                List.of("GET","POST","PUT","DELETE","OPTIONS"));
+                List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(false);
+
         UrlBasedCorsConfigurationSource source =
                 new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
