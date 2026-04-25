@@ -28,18 +28,13 @@ public class SecurityConfig {
                 .sessionManagement(s ->
                         s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // Anyone can login or register
                         .requestMatchers("/api/auth/**").permitAll()
+                        // Lookups are public so Flutter can load chip data
                         .requestMatchers("/api/lookups/**").permitAll()
-                        // Allow Swagger UI access
-                        .requestMatchers(
-                                "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/v3/api-docs/**",
-                                "/v3/api-docs",
-                                "/swagger-resources/**",
-                                "/webjars/**"
-                        ).permitAll()
+                        // Only ADMIN can access admin endpoints
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        // Both roles can access everything else
                         .anyRequest().authenticated()
                 )
                 .cors(cors -> cors.configurationSource(corsConfig()))

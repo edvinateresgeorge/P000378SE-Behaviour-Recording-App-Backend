@@ -6,6 +6,7 @@ import com.behaviourbridgetracks.repository.EmotionCheckInRepository;
 import com.behaviourbridgetracks.repository.ClientRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
@@ -32,6 +33,7 @@ public class EmotionCheckInController {
                 .userId(userId)
                 .emotion(request.getEmotion())
                 .emotionLevel(request.getEmotionLevel())
+                .feelings(request.getFeelings())
                 .notes(request.getNotes())
                 .checkedAt(request.getCheckedAt() != null
                         ? request.getCheckedAt() : LocalDateTime.now())
@@ -43,7 +45,7 @@ public class EmotionCheckInController {
     }
 
     // Parent sees their child's check-in results
-    // AC18.1 — view saved check-in results
+    // AC18.1 â€” view saved check-in results
     @GetMapping("/my-checkins")
     public ResponseEntity<?> getMyCheckIns(
             @AuthenticationPrincipal String userId) {
@@ -72,6 +74,7 @@ public class EmotionCheckInController {
     }
 
     // ADMIN sees all check-ins across all clients
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/all")
     public ResponseEntity<List<EmotionCheckIn>> getAll() {
         return ResponseEntity.ok(checkInRepo.findAll());

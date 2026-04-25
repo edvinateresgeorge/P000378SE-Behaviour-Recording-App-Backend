@@ -18,6 +18,7 @@ public class BehaviourRecord {
     private LocalDateTime createdAt;
     private String notes;
     private String location;
+    private String context;
 
     // Store names directly from Flutter
     private List<String> behaviourNames;

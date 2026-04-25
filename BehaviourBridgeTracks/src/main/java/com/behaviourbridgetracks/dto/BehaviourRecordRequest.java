@@ -18,6 +18,7 @@ public class BehaviourRecordRequest {
     // Extra fields from Flutter log screen
     // Stores names directly since Flutter uses names not IDs
     private String location;
+    private String context;
     private List<String> behaviourNames;
     private List<String> triggerNames;
     private List<String> strategyNames;

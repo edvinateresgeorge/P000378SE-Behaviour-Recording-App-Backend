@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/BehaviourBridgeTracks.iml" filepath="$PROJECT_DIR$/.idea/BehaviourBridgeTracks.iml" />
+      <module fileurl="file://$PROJECT_DIR$/BehaviourBridgeTracks/BehaviourBridgeTracks.iml" filepath="$PROJECT_DIR$/BehaviourBridgeTracks/BehaviourBridgeTracks.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/P000378SE-Behaviour-Recording-App-Backend.iml" filepath="$PROJECT_DIR$/.idea/P000378SE-Behaviour-Recording-App-Backend.iml" />
     </modules>
   </component>
 </project>
