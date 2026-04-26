@@ -16,6 +16,7 @@ public class DataSeeder implements ApplicationRunner {
     private final TriggerRepository triggerRepo;
     private final SettingRepository settingRepo;
     private final ResponseRepository responseRepo;
+    private final SafetyPlanRepository safetyPlanRepo;
 
     @Override
     public void run(ApplicationArguments args) {
@@ -138,6 +139,40 @@ public class DataSeeder implements ApplicationRunner {
                             .strategyType("REACTIVE").build()
             ));
             System.out.println("✅ Responses seeded");
+        }
+
+        // Seed default safety plan with Australian crisis
+        // helplines matching the Figma design
+        if (safetyPlanRepo.count() == 0) {
+            SafetyPlan defaultPlan = SafetyPlan.builder()
+                    .userId("default")
+                    .crisisHelplines(List.of(
+                            CrisisContact.builder()
+                                    .name("Kids Helpline")
+                                    .number("1800 55 1800")
+                                    .action("Call").build(),
+                            CrisisContact.builder()
+                                    .name("Lifeline")
+                                    .number("13 11 14")
+                                    .action("Call").build(),
+                            CrisisContact.builder()
+                                    .name("Beyond Blue")
+                                    .number("1300 22 4636")
+                                    .action("Call").build(),
+                            CrisisContact.builder()
+                                    .name("Crisis Text Line")
+                                    .number("0477 13 11 14")
+                                    .action("Text").build()
+                    ))
+                    .emergencyContacts(List.of())
+                    .warningSigns(List.of())
+                    .whatHelps(List.of())
+                    .safeSpaces(List.of())
+                    .additionalNotes("")
+                    .build();
+
+            safetyPlanRepo.save(defaultPlan);
+            System.out.println("✅ Default safety plan seeded");
         }
     }
 }
