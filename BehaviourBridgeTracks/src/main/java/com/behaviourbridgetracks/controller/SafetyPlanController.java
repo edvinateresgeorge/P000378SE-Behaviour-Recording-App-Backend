@@ -22,7 +22,6 @@ public class SafetyPlanController {
 
     @GetMapping
     public ResponseEntity<SafetyPlan> get(@AuthenticationPrincipal String userId) {
-        // Clean up any duplicate documents left by the old buggy POST
         List<SafetyPlan> all = repo.findAllByUserId(userId);
         if (all.size() > 1) {
             repo.deleteAll(all.subList(1, all.size()));

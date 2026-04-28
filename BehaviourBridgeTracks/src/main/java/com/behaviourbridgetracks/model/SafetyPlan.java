@@ -14,7 +14,7 @@ public class SafetyPlan {
     @Id
     private String id;
     private String userId;
-    private List<Contact> contacts;       // name + number pairs
+    private List<Contact> contacts;
     private List<String> warningSigns;
     private List<String> calmingStrategies;
     private List<String> safeSpaces;

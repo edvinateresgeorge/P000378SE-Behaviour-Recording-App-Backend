@@ -11,13 +11,14 @@ import java.util.List;
 public class EmotionCheckIn {
     @Id
     private String id;
-    private String clientId;   // child being checked
-    private String userId;     // parent who logged it
-    private String emotion;    // "Very Upset", "Upset", "Okay", "Good", "Great"
-    private Integer emotionLevel; // 1-5
+    private String clientId;
+    private String userId;
+    private String emotion;
+    private Integer emotionLevel;
     private List<String> feelings;
+    private List<String> bodySignalCategories;
+    private List<String> bodySignals;
     private String notes;
     private LocalDateTime checkedAt;
     private LocalDateTime createdAt;
 }
-

@@ -10,6 +10,8 @@ public class EmotionCheckInRequest {
     private String emotion;
     private Integer emotionLevel;
     private List<String> feelings;
+    private List<String> bodySignalCategories;
+    private List<String> bodySignals;
     private String notes;
     private LocalDateTime checkedAt;
 }
