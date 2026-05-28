@@ -32,6 +32,15 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         // Lookups are public so Flutter can load chip data
                         .requestMatchers("/api/lookups/**").permitAll()
+                        // Allow Swagger UI for team API documentation
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**",
+                                "/v3/api-docs",
+                                "/swagger-resources/**",
+                                "/webjars/**"
+                        ).permitAll()
                         // Only ADMIN can access admin endpoints
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         // Both roles can access everything else
