@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -21,21 +22,20 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        Optional<User> found = userRepository.findByEmail(request.getEmail());
 
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        if (found.isEmpty()) {
+            return ResponseEntity.status(401).body("Invalid email or password");
+        }
 
-        if (!passwordEncoder.matches(request.getPassword(),
-                user.getPasswordHash())) {
-            return ResponseEntity.status(401)
-                    .body("Invalid email or password");
+        User user = found.get();
+
+        if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
+            return ResponseEntity.status(401).body("Invalid email or password");
         }
 
         String token = jwtUtil.generateToken(user.getId(), user.getRole());
 
-        // Flutter receives this and routes to correct screen
-        // ADMIN → Practitioner dashboard (see all clients)
-        // CLIENT → Parent dashboard (see only their child)
         return ResponseEntity.ok(AuthResponse.builder()
                 .token(token)
                 .userId(user.getId())
@@ -45,46 +45,38 @@ public class AuthController {
     }
 
     @PostMapping("/register/admin")
-    public ResponseEntity<?> registerAdmin(
-            @RequestBody RegisterRequest request) {
-
+    public ResponseEntity<?> registerAdmin(@RequestBody RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            return ResponseEntity.badRequest()
-                    .body("Email already exists");
+            return ResponseEntity.badRequest().body("Email already exists");
         }
 
         User user = User.builder()
                 .name(request.getName())
                 .email(request.getEmail())
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
-                .role("ADMIN")          // Practitioner / Staff
+                .role("ADMIN")
                 .createdAt(LocalDateTime.now())
                 .build();
 
         userRepository.save(user);
-        return ResponseEntity.status(201)
-                .body("Practitioner account created");
+        return ResponseEntity.status(201).body("Practitioner account created");
     }
 
     @PostMapping("/register/client")
-    public ResponseEntity<?> registerClient(
-            @RequestBody RegisterRequest request) {
-
+    public ResponseEntity<?> registerClient(@RequestBody RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            return ResponseEntity.badRequest()
-                    .body("Email already exists");
+            return ResponseEntity.badRequest().body("Email already exists");
         }
 
         User user = User.builder()
                 .name(request.getName())
                 .email(request.getEmail())
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
-                .role("CLIENT")         // Parent
+                .role("CLIENT")
                 .createdAt(LocalDateTime.now())
                 .build();
 
         userRepository.save(user);
-        return ResponseEntity.status(201)
-                .body("Parent account created");
+        return ResponseEntity.status(201).body("Parent account created");
     }
 }
