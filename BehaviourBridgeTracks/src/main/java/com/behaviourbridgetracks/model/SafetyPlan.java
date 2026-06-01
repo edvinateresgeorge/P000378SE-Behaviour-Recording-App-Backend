@@ -22,6 +22,7 @@ public class SafetyPlan {
     private List<String> calmingStrategies;
     private List<String> safeSpaces;
     private String notes;
+    private List<Contact> crisisContacts;
 
     // Extended fields (DataSeeder / teammate's version)
     private List<EmergencyContact> emergencyContacts;

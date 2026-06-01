@@ -16,4 +16,9 @@ public class Task {
     private String status; // pending, in_progress, completed
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String description;
+    private Integer durationMinutes;
+    private LocalDateTime dueDate;
+    private String repeat;        // 'Once' | 'Daily' | 'Weekdays' | 'Weekly'
+    private Integer difficulty;   // 0–5
 }
