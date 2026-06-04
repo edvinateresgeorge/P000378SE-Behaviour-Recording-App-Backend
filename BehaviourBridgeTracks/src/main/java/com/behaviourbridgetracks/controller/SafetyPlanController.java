@@ -32,6 +32,7 @@ public class SafetyPlanController {
                 SafetyPlan.builder()
                         .userId(userId)
                         .contacts(new ArrayList<>())
+                        .crisisContacts(new ArrayList<>())          // ← NEW
                         .warningSigns(new ArrayList<>())
                         .calmingStrategies(new ArrayList<>())
                         .safeSpaces(new ArrayList<>())
@@ -56,6 +57,16 @@ public class SafetyPlanController {
                                 .number(dto.getNumber())
                                 .build())
                         .collect(Collectors.toList());
+
+        List<Contact> crisisContacts = request.getCrisisContacts() == null ? new ArrayList<>() :
+                request.getCrisisContacts().stream()
+                        .map(dto -> Contact.builder()
+                                .name(dto.getName())
+                                .number(dto.getNumber())
+                                .build())
+                        .collect(Collectors.toList());
+
+        plan.setCrisisContacts(crisisContacts);
 
         plan.setContacts(contacts);
         plan.setWarningSigns(request.getWarningSigns() != null ? request.getWarningSigns() : new ArrayList<>());

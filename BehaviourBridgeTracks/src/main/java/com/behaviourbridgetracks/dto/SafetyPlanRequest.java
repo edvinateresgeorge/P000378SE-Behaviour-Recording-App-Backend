@@ -10,6 +10,7 @@ public class SafetyPlanRequest {
     private List<String> calmingStrategies;
     private List<String> safeSpaces;
     private String notes;
+    private List<ContactDto> crisisContacts;
 
     @Data
     public static class ContactDto {

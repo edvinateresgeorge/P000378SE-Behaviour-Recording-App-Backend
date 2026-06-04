@@ -40,6 +40,10 @@ public class SecurityConfig {
                                 "/swagger-resources/**",
                                 "/webjars/**"
                         ).permitAll()
+
+                        // Only ADMIN can access invoice APIs
+                        .requestMatchers("/api/invoices/**").hasRole("ADMIN")
+
                         // Only ADMIN can access admin endpoints
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         // Both roles can access everything else
