@@ -1,0 +1,481 @@
+═══════════════════════════════════════════════════════════════
+BEHAVIOUR BRIDGE TRACKS — DATA MANAGEMENT INFORMATION
+═══════════════════════════════════════════════════════════════
+
+PROJECT:   Behaviour Bridge Tracks
+TEAM:      P000378SE
+DATE:      June 2026
+VERSION:   Sprint 5
+API:       OAS 3.0 — Behaviour Bridge Tracks API v1.0.0
+
+───────────────────────────────────────────────────────────────
+1. DATABASE INFORMATION
+───────────────────────────────────────────────────────────────
+
+Database Type:        MongoDB (NoSQL Document Database)
+Version:              MongoDB 6.x Community Edition
+Hosting:              Local development environment
+Connection Type:      Local (not cloud-based)
+Connection Address:   mongodb://localhost:27017
+Database Name:        behaviourbridgedb
+
+───────────────────────────────────────────────────────────────
+2. CONNECTION DETAILS
+───────────────────────────────────────────────────────────────
+
+Host:                 localhost
+Port:                 27017
+Database Name:        behaviourbridgedb
+Username:             None (local development — no auth required)
+Password:             None (local development — no auth required)
+Authentication:       Not required for local setup
+
+Spring Boot Connection String:
+  mongodb://localhost:27017/behaviourbridgedb
+
+Spring Boot Configuration File Location:
+  src/main/resources/application.properties
+
+Full application.properties:
+  spring.data.mongodb.uri=mongodb://localhost:27017/behaviourbridgedb
+  spring.data.mongodb.database=behaviourbridgedb
+  server.port=8080
+  jwt.secret=BehaviourBridgeTracksSecretKey2024SuperLongSecretKeyForSecurity
+  jwt.expiration=86400000
+  logging.level.org.springframework.data.mongodb=DEBUG
+  logging.level.com.behaviourbridgetracks=DEBUG
+  springdoc.swagger-ui.path=/swagger-ui.html
+  springdoc.api-docs.path=/v3/api-docs
+
+───────────────────────────────────────────────────────────────
+3. AUTHORISATION INFORMATION
+───────────────────────────────────────────────────────────────
+
+Authentication Method:   JWT (JSON Web Token)
+Token Type:              Bearer Token
+Token Expiry:            24 hours (86400000 milliseconds)
+Token Header:            Authorization: Bearer {token}
+Password Storage:        BCrypt hash (BCryptPasswordEncoder)
+
+JWT Configuration:
+  jwt.secret     = BehaviourBridgeTracksSecretKey2024
+                   SuperLongSecretKeyForSecurity
+  jwt.expiration = 86400000
+
+User Roles:
+  ADMIN  → Practitioner / Staff
+           Full access to all API endpoints
+           Admin web portal access only
+           Blocked from Flutter mobile app login
+
+  CLIENT → Parent / Caregiver
+           Access to own records only
+           Flutter mobile app access only
+           Blocked from ADMIN-only endpoints
+
+───────────────────────────────────────────────────────────────
+4. DATABASE COLLECTIONS
+(verified from MongoDB Compass — behaviourbridgedb)
+───────────────────────────────────────────────────────────────
+
+Collection Name        Description
+──────────────────────────────────────────────────────────────
+users                  All user accounts (ADMIN and CLIENT roles)
+clients                Child/client profiles with name, dob, notes
+                       and linked parent userId
+behaviour_records      Core behaviour log records including
+                       behaviourNames, triggerNames, strategyNames,
+                       replacementNames, location, context,
+                       intensity, notes and timestamps
+emotion_checkins       Emotion check-in records with emotion,
+                       emotionLevel, feelings, bodySignalCategories,
+                       bodySignals, notes and checkedAt timestamp
+safety_plans           Safety plan per user with contacts,
+                       warningSigns, calmingStrategies, safeSpaces,
+                       crisisContacts, emergencyContacts,
+                       whatHelps, crisisHelplines, notes
+appointments           Appointment booking records with clientName,
+                       practitionerName, title, description,
+                       location, type (IN_PERSON/ONLINE),
+                       appointmentDate, durationMinutes, status
+                       (PENDING/CONFIRMED/CANCELLED/COMPLETED),
+                       sessionNotes and timestamps
+behaviour_types        Lookup: behaviour type options (seeded)
+triggers               Lookup: trigger options (seeded)
+settings               Lookup: location/setting options (seeded)
+responses              Lookup: strategy/response options (seeded)
+record_behaviours      Junction: behaviour record to behaviour type
+record_triggers        Junction: behaviour record to trigger
+record_settings        Junction: behaviour record to setting
+record_responses       Junction: behaviour record to response
+
+NOTE: tasks, routines and invoices collections are created
+dynamically when first record is saved — not visible in
+Compass until data is added.
+
+───────────────────────────────────────────────────────────────
+5. BACKEND MODELS
+(verified from source code — src/main/java/.../model/)
+───────────────────────────────────────────────────────────────
+
+Model File              Collection          Sprint Added
+──────────────────────────────────────────────────────────────
+User.java               users               Sprint 1
+Client.java             clients             Sprint 1
+BehaviourRecord.java    behaviour_records   Sprint 1
+BehaviourType.java      behaviour_types     Sprint 1
+Trigger.java            triggers            Sprint 1
+Setting.java            settings            Sprint 1
+Response.java           responses           Sprint 1
+RecordBehaviour.java    record_behaviours   Sprint 1
+RecordTrigger.java      record_triggers     Sprint 1
+RecordSetting.java      record_settings     Sprint 1
+RecordResponse.java     record_responses    Sprint 1
+EmotionCheckIn.java     emotion_checkins    Sprint 2
+EmergencyContact.java   (embedded)          Sprint 2
+CrisisContact.java      (embedded)          Sprint 2
+SafetyPlan.java         safety_plans        Sprint 2
+Contact.java            (embedded)          Sprint 3
+Task.java               tasks               Sprint 3
+Routine.java            routines            Sprint 3
+Appointment.java        appointments        Sprint 4
+Invoice.java            invoices            Sprint 4/5
+Step.java               (embedded)          Sprint 3/4
+
+───────────────────────────────────────────────────────────────
+6. DATA SCHEMAS
+(verified from Swagger OAS 3.0)
+───────────────────────────────────────────────────────────────
+
+── BehaviourRecord ────────────────────────────────────────────
+{
+  id, clientId, userId, intensity, occurredAt,
+  createdAt, notes, location, context,
+  behaviourNames[], triggerNames[],
+  strategyNames[], replacementNames[]
+}
+
+── EmotionCheckIn ─────────────────────────────────────────────
+{
+  id, clientId, userId, emotion, emotionLevel,
+  feelings[], bodySignalCategories[],
+  bodySignals[], notes, checkedAt, createdAt
+}
+
+── SafetyPlan ─────────────────────────────────────────────────
+{
+  id, userId, clientId,
+  contacts[] { name, number },
+  warningSigns[], calmingStrategies[],
+  safeSpaces[], notes,
+  crisisContacts[] { name, number, action },
+  emergencyContacts[] { name, number, role },
+  whatHelps[], crisisHelplines[],
+  additionalNotes
+}
+
+── Appointment ────────────────────────────────────────────────
+{
+  id, clientId, userId, clientName,
+  practitionerId, practitionerName,
+  title, description, location,
+  type (IN_PERSON/ONLINE),
+  appointmentDate, durationMinutes,
+  status (PENDING/CONFIRMED/CANCELLED/COMPLETED),
+  sessionNotes, createdAt, updatedAt
+}
+
+── Task ───────────────────────────────────────────────────────
+{
+  id, userId, title, category, status,
+  description, durationMinutes, dueDate,
+  repeat, difficulty, repeatEndDate,
+  createdAt, updatedAt
+}
+
+── Routine ────────────────────────────────────────────────────
+{
+  id, userId, title, category,
+  startDate, startTime, repeatDays[],
+  steps[] { title, durationMin },
+  endDate, createdAt, updatedAt
+}
+
+── Invoice ────────────────────────────────────────────────────
+{
+  id, appointmentId, clientName, clientEmail,
+  practitionerName, appointmentDate,
+  startTime, endTime, sessionDurationMinutes,
+  feeAmount, status, internalBillingNotes
+}
+
+── Client ─────────────────────────────────────────────────────
+{
+  id, name, dob, notes, userId
+}
+
+───────────────────────────────────────────────────────────────
+7. COMPLETE API ENDPOINTS
+(verified from Swagger UI — http://localhost:8080/swagger-ui/index.html)
+───────────────────────────────────────────────────────────────
+
+Base URL:    http://localhost:8080/api
+Swagger UI:  http://localhost:8080/swagger-ui/index.html
+API Docs:    http://localhost:8080/v3/api-docs
+
+── auth-controller (PUBLIC — no token required) ───────────────
+POST   /api/auth/login               Login — returns JWT token
+POST   /api/auth/register/admin      Register practitioner
+POST   /api/auth/register/client     Register parent
+
+── lookup-controller (PUBLIC — no token required) ─────────────
+GET    /api/lookups/behaviour-types  All behaviour types
+GET    /api/lookups/triggers         All triggers
+GET    /api/lookups/settings         All settings/locations
+GET    /api/lookups/responses        All strategies/responses
+
+── client-controller ──────────────────────────────────────────
+GET    /api/clients                          All clients (ADMIN)
+POST   /api/clients                          Add client (ADMIN)
+GET    /api/clients/{id}                     Single client
+GET    /api/clients/my-child                 Client's child
+PUT    /api/clients/{clientId}/link/{parentUserId}
+                                             Link to parent
+
+── behaviour-record-controller ────────────────────────────────
+POST   /api/behaviour-records                Save record (both)
+GET    /api/behaviour-records/my-records     My records (CLIENT)
+GET    /api/behaviour-records/all            All records (ADMIN)
+GET    /api/behaviour-records/{id}           Single record
+
+── emotion-check-in-controller ────────────────────────────────
+POST   /api/emotion-checkins                 Save check-in
+GET    /api/emotion-checkins/my-checkins     My check-ins
+GET    /api/emotion-checkins/all             All (ADMIN)
+
+── safety-plan-controller ─────────────────────────────────────
+GET    /api/safety-plan                      Get safety plan
+POST   /api/safety-plan                      Save safety plan
+
+── appointment-controller ─────────────────────────────────────
+POST   /api/appointments                     Book appointment
+GET    /api/appointments/my                  My upcoming
+GET    /api/appointments/history             My history
+GET    /api/appointments/all                 All (ADMIN)
+GET    /api/appointments/upcoming            Upcoming (ADMIN)
+GET    /api/appointments/{id}                Single appointment
+GET    /api/appointments/client/{clientId}   By client (ADMIN)
+PUT    /api/appointments/{id}                Update (ADMIN)
+PUT    /api/appointments/{id}/confirm        Confirm (ADMIN)
+PUT    /api/appointments/{id}/cancel         Cancel (both)
+PUT    /api/appointments/{id}/complete       Complete (ADMIN)
+
+── task-controller ────────────────────────────────────────────
+GET    /api/tasks                            Get my tasks
+POST   /api/tasks                            Create task
+PATCH  /api/tasks/{id}/status               Update task status
+DELETE /api/tasks/{id}                       Delete task
+
+── routine-controller ─────────────────────────────────────────
+GET    /api/routines                         Get my routines
+POST   /api/routines                         Create routine
+GET    /api/routines/{id}                    Single routine
+PUT    /api/routines/{id}                    Update routine
+DELETE /api/routines/{id}                    Delete routine
+
+── invoice-controller ─────────────────────────────────────────
+GET    /api/invoices                         Get all invoices
+POST   /api/invoices                         Create invoice
+GET    /api/invoices/{id}                    Single invoice
+PUT    /api/invoices/{id}                    Update invoice
+DELETE /api/invoices/{id}                    Delete invoice
+GET    /api/invoices/appointment/{id}        By appointment
+
+───────────────────────────────────────────────────────────────
+8. ADMIN WEB PORTAL API CONFIG
+(verified from admin portal api_config.dart)
+───────────────────────────────────────────────────────────────
+
+Base URL: http://localhost:8080/api
+
+Endpoints currently configured:
+  login                       POST /api/auth/login
+  clients                     GET  /api/clients
+  allRecords                  GET  /api/behaviour-records/all
+  clientRecords(clientId)     GET  /api/behaviour-records/client/{id}
+  clientById(clientId)        GET  /api/clients/{id}
+  allAppointments             GET  /api/appointments/all
+  upcomingAppointments        GET  /api/appointments/upcoming
+  appointmentById(id)         GET  /api/appointments/{id}
+  confirmAppointment(id)      PUT  /api/appointments/{id}/confirm
+  cancelAppointment(id)       PUT  /api/appointments/{id}/cancel
+  completeAppointment(id)     PUT  /api/appointments/{id}/complete
+  appointmentByClient(id)     GET  /api/appointments/client/{id}
+
+───────────────────────────────────────────────────────────────
+9. TEST ACCOUNTS
+───────────────────────────────────────────────────────────────
+
+NOTE: Accounts are NOT auto-seeded. Each developer must
+create them once on their local machine using Postman
+or Swagger UI.
+
+Practitioner (ADMIN):
+  Name:     Dr Sarah
+  Email:    sarah@clinic.com
+  Password: password123
+  Role:     ADMIN
+  Access:   Admin web portal only
+
+Parent (CLIENT):
+  Name:     John Smith
+  Email:    john@gmail.com
+  Password: password123
+  Role:     CLIENT
+  Access:   Flutter mobile app only
+
+Child Profile:
+  Name:     Tommy Smith
+  ClientId: 69db9132f5f1136332729ef9
+  Linked:   John Smith (parent)
+
+To create test accounts:
+  POST http://localhost:8080/api/auth/register/admin
+  Body: { "name":"Dr Sarah",
+          "email":"sarah@clinic.com",
+          "password":"password123" }
+
+  POST http://localhost:8080/api/auth/register/client
+  Body: { "name":"John Smith",
+          "email":"john@gmail.com",
+          "password":"password123" }
+
+───────────────────────────────────────────────────────────────
+10. DATA SEEDING (automatic on first Spring Boot startup)
+───────────────────────────────────────────────────────────────
+
+DataSeeder.java runs on startup if collections are empty:
+
+  behaviour_types (10 records):
+    CHALLENGING: Physical Aggression, Verbal Aggression,
+    Self-Injurious Behaviour, Property Destruction,
+    Non-Compliance, Withdrawal/Avoidance
+    POSITIVE: Functional Communication, Emotional
+    Regulation, Task Engagement, Social Interaction
+
+  triggers (12 records):
+    ENVIRONMENTAL: Sensory Overload, Changes in Routine,
+    Transitions, Task Demands, Crowded Spaces
+    SOCIAL: Being Told No, Communication Barriers,
+    Lack of Attention, Social Demands
+    INTERNAL: Physical Discomfort, Hunger/Fatigue,
+    Anxiety/Overwhelm
+
+  settings (6 records):
+    Home, School, Public, Transport, Therapy, Other
+
+  responses (8 records):
+    PROACTIVE: Visual Schedule, Transition Warning,
+    Positive Reinforcement, Communication Support
+    REACTIVE: De-escalation, Redirection,
+    Providing Choices, Strategic Ignoring
+
+  safety_plans (1 default record):
+    Australian crisis helplines:
+    Kids Helpline:    1800 55 1800  (Call)
+    Lifeline:         13 11 14      (Call)
+    Beyond Blue:      1300 22 4636  (Call)
+    Crisis Text Line: 0477 13 11 14 (Text)
+
+───────────────────────────────────────────────────────────────
+11. GITHUB REPOSITORIES
+───────────────────────────────────────────────────────────────
+
+Flutter Frontend:
+  https://github.com/nishanttigdi/
+  P000378SE-Behaviour-Recording-App
+
+Spring Boot Backend:
+  https://github.com/edvinateresgeorge/
+  P000378SE-Behaviour-Recording-App-Backend
+
+───────────────────────────────────────────────────────────────
+12. STARTUP ORDER
+───────────────────────────────────────────────────────────────
+
+Always start services in this order:
+
+  1. MongoDB
+     → Open MongoDB Compass
+     → Connect: mongodb://localhost:27017
+     → Verify behaviourbridgedb exists
+
+  2. Spring Boot Backend
+     → Open IntelliJ IDEA
+     → Run BehaviourBridgeTracksApplication.java
+     → Wait for: "Tomcat started on port 8080"
+     → Verify Swagger: localhost:8080/swagger-ui/index.html
+
+  3. Flutter Mobile App
+     → flutter run -d chrome (web)
+     → flutter run (Android)
+
+  4. Admin Web Portal
+     → Follow admin portal README setup instructions
+
+───────────────────────────────────────────────────────────────
+13. BACKUP AND RECOVERY
+───────────────────────────────────────────────────────────────
+
+Current Method:  Manual export via MongoDB Compass
+Backup Format:   JSON
+Backup Location: Local machine only
+
+To export database:
+  1. Open MongoDB Compass
+  2. Connect to mongodb://localhost:27017
+  3. Select behaviourbridgedb
+  4. Click each collection → Export Data → JSON
+
+To restore database:
+  1. Open MongoDB Compass
+  2. Select collection
+  3. Import Data → select JSON file
+
+───────────────────────────────────────────────────────────────
+14. SECURITY NOTES
+───────────────────────────────────────────────────────────────
+
+  1. LOCAL development database only — no auth configured
+  2. JWT secret key MUST be changed before any production use
+  3. All passwords stored as BCrypt hashes
+  4. CORS configured to allow all origins (*)
+     — must be restricted to specific domains in production
+  5. No real patient data should be stored in development
+  6. Swagger UI is publicly accessible in development
+     — must be restricted or disabled in production
+
+───────────────────────────────────────────────────────────────
+15. CLOUD DEPLOYMENT (future recommendation)
+───────────────────────────────────────────────────────────────
+
+Recommended Database: MongoDB Atlas (Free Tier available)
+  Website: https://www.mongodb.com/atlas
+
+Cloud connection string format:
+  mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/
+  behaviourbridgedb?retryWrites=true&w=majority
+
+Steps to migrate to cloud:
+  1. Create MongoDB Atlas account
+  2. Create free tier cluster
+  3. Whitelist IP addresses
+  4. Create database user with password
+  5. Update application.properties with Atlas URI
+  6. Update JWT secret to strong random key
+  7. Restrict CORS to specific domains
+  8. Disable Swagger in production
+
+═══════════════════════════════════════════════════════════════
+END OF DATA MANAGEMENT INFORMATION
+═══════════════════════════════════════════════════════════════
