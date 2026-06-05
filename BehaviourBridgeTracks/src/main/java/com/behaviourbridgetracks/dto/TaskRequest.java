@@ -13,5 +13,6 @@ public class TaskRequest {
     private Integer durationMinutes;
     private LocalDateTime dueDate;
     private String repeat;        // 'Once' | 'Daily' | 'Weekdays' | 'Weekly'
-    private Integer difficulty;   // 0–5
+    private Integer difficulty;// 0–5
+    private LocalDateTime repeatEndDate;
 }

@@ -32,6 +32,7 @@ public class TaskController {
                 .dueDate(request.getDueDate())
                 .repeat(request.getRepeat())
                 .difficulty(request.getDifficulty())
+                .repeatEndDate(request.getRepeatEndDate())
                 .status(request.getStatus() != null ? request.getStatus() : "pending")
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())

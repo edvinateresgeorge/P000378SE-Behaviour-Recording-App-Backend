@@ -21,4 +21,5 @@ public class Task {
     private LocalDateTime dueDate;
     private String repeat;        // 'Once' | 'Daily' | 'Weekdays' | 'Weekly'
     private Integer difficulty;   // 0–5
+    private LocalDateTime repeatEndDate;
 }

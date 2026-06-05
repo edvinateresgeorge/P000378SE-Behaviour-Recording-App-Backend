@@ -29,12 +29,13 @@ public class RoutineController {
                 .userId(userId)
                 .title(request.getTitle())
                 .category(request.getCategory())
-                .durationMinutes(request.getDurationMinutes())
+                .startDate(request.getStartDate())
                 .startTime(request.getStartTime())
                 .repeatDays(request.getRepeatDays() != null
                         ? request.getRepeatDays()
                         : new ArrayList<>())
                 .steps(mapSteps(request.getSteps()))
+                .endDate(request.getEndDate())
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
@@ -57,15 +58,26 @@ public class RoutineController {
         return routineRepo.findById(id)
                 .filter(r -> r.getUserId().equals(userId))
                 .map(r -> {
-                    if (request.getTitle() != null) r.setTitle(request.getTitle());
-                    if (request.getCategory() != null) r.setCategory(request.getCategory());
-                    if (request.getDurationMinutes() != null) r.setDurationMinutes(request.getDurationMinutes());
-                    if (request.getStartTime() != null) r.setStartTime(request.getStartTime());
-                    if (request.getRepeatDays() != null) r.setRepeatDays(request.getRepeatDays());
-                    if (request.getSteps() != null) r.setSteps(mapSteps(request.getSteps()));
+                    if (request.getTitle() != null)        r.setTitle(request.getTitle());
+                    if (request.getCategory() != null)     r.setCategory(request.getCategory());
+                    if (request.getStartTime() != null)    r.setStartTime(request.getStartTime());
+                    if (request.getStartDate() != null)    r.setStartDate(request.getStartDate());
+                    if (request.getEndDate() != null)      r.setEndDate(request.getEndDate());
+                    if (request.getRepeatDays() != null)   r.setRepeatDays(request.getRepeatDays());
+                    if (request.getSteps() != null)        r.setSteps(mapSteps(request.getSteps()));
                     r.setUpdatedAt(LocalDateTime.now());
                     return ResponseEntity.ok(routineRepo.save(r));
                 })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Routine> getById(
+            @PathVariable String id,
+            @AuthenticationPrincipal String userId) {
+        return routineRepo.findById(id)
+                .filter(r -> r.getUserId().equals(userId))
+                .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 

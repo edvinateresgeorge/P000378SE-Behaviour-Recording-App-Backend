@@ -15,12 +15,13 @@ public class Routine {
     private String userId;
     private String title;
     private String category; // Morning, Bedtime, Homework, After School, Custom
-    private Integer durationMinutes;
+    private LocalDateTime startDate;
     private String startTime; // "HH:mm" e.g. "07:00"
     @Builder.Default
     private List<Integer> repeatDays = new ArrayList<>(); // 0=Mon ... 6=Sun
     @Builder.Default
     private List<Step> steps = new ArrayList<>();
+    private LocalDateTime endDate;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
